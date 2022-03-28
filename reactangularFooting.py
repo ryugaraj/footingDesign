@@ -8,9 +8,12 @@ from PyQt5.QtWidgets import QMainWindow, QWidget, QAction, QApplication, QGridLa
 
 
 class FootingGenerator(QMainWindow, QWidget):
+
+
     def __init__(self):
         super().__init__()
 
+        self.txtItr = 1
         self.left = 20
         self.top = 50
         self.width = 1500
@@ -173,6 +176,10 @@ class FootingGenerator(QMainWindow, QWidget):
         os._exit(0)
 
     def selectionchange(self):
+
+        filePath = "footing" + str(self.txtItr) + ".txt"
+        sys.stdout = open(str(filePath), 'w')
+
         inputL = max(self.sizeColumn.value(), self.sizeColumn2.value())
         inputB = min(self.sizeColumn.value(), self.sizeColumn2.value())
         concrete = int(self.cbConcrete.currentText()[1:3])
@@ -253,7 +260,7 @@ class FootingGenerator(QMainWindow, QWidget):
         else:
             depthMu = math.sqrt(m2 * 1000000 / (steelConstant * concrete * b * 1000))
 
-        depthMu = float("{:.0f}".format(depthMu))
+        depthMu = self.myround(depthMu, 25)
 
         tauv1 = 1
         tauc1 = 0
@@ -445,8 +452,8 @@ class FootingGenerator(QMainWindow, QWidget):
 
         print('\n')
         print("Force Transfer at Column Base:")
-        print("Ultimate Compressive force at Column Base " + str(self.axialLoad.value()*1.5) + " kN")
-        print("Limiting Bearing Stress at Column footing interface " + str(permissibleStress)+" N/sq.mm")
+        print("Ultimate Compressive force at Column Base " + str(self.axialLoad.value() * 1.5) + " kN")
+        print("Limiting Bearing Stress at Column footing interface " + str(permissibleStress) + " N/sq.mm")
         print("Actual Bearing Stress " + str(bearingStress) + " N/sq.mm")
 
         if bearingStress < permissibleStress:
@@ -458,7 +465,13 @@ class FootingGenerator(QMainWindow, QWidget):
 
         print('\n')
         print("Check for Development Length")
-        print("Development length is " + str(developmentLength))
+        print("Development length is " + str(developmentLength) + " mm")
+
+        self.txtItr += 1
+        sys.stdout.close()
+
+    def myround(self, x, base):
+        return base * round(x / base)
 
     def showDialogBox(self, message):
         msg = QMessageBox()
